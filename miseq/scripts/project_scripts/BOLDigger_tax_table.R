@@ -72,7 +72,7 @@ motu_unique <- motu_unique[order(match(motu_unique[,2], motu_tax_tab_uniq[,1])),
 final_motu_tab <- as.data.frame(cbind(motu_tax_tab_uniq[,1:8], motu_unique[,-c(1,2)]))
 
 # Combine it with the entries that were not part of the aggregation procedure, e.g. MOTUs with no species level assignment
-final_motu_tab <- rbind(final_motu_tab, motu_tax_tab[is.na(motu_tax_tab$Species),])
+final_motu_tab <- rbind(final_motu_tab, motu_tax_tab[is.na(motu_tax_tab$species),])
 
 # Write count table to file for phyloseq processing
 write.table(final_motu_tab[, c(1,8:ncol(final_motu_tab))],
