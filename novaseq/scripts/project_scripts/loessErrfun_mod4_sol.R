@@ -74,19 +74,19 @@ fnRs <- sort(fnRs[grep("_2_H", fnRs)])
 # The reverse COI primer jgHCO2198 contains Inosine nucleotides.
 # These "I" bases are not part of IUPAC convention and are not recognized by the packages used here. Change "I"s to "N"s.
 
-FWD <- "GGWACWGGWTGAACWGTWTAYCCYCC"  ## forward primer sequence
-REV <- "TANACYTCNGGRTGNCCRAARAAYCA"  ## reverse primer sequence
+FWD <- "TGGTGCATGGCCGTTCTTAGT"  ## forward primer sequence
+REV <- "CATCTAAGGGCATCACAGACC"  ## reverse primer sequence
 
 
 # Verify the presence and orientation of these primers in the data
 
 allOrients <- function(primer) {
-  # Create all orientations of the input sequence
-  require(Biostrings)
-  dna <- DNAString(primer)  # The Biostrings works w/ DNAString objects rather than character vectors
-  orients <- c(Forward = dna, Complement = complement(dna), Reverse = reverse(dna), 
-               RevComp = reverseComplement(dna))
-  return(sapply(orients, toString))  # Convert back to character vector
+    # Create all orientations of the input sequence
+    require(Biostrings)
+    dna <- DNAString(primer)  # The Biostrings works w/ DNAString objects rather than character vectors
+    orients <- c(Forward = dna, Complement = complement(dna), Reverse = reverse(dna), 
+                RevComp = reverseComplement(dna))
+    return(sapply(orients, toString))  # Convert back to character vector
 }
 FWD.orients <- allOrients(FWD)
 REV.orients <- allOrients(REV)
@@ -95,21 +95,27 @@ REV.orients
 
 
 # Calculate number of reads containing forward and reverse primer sequences (considering all possible primer orientations. Only exact matches are found.).
-# Only one set of paired end fastq.gz files will be checked (second sample in this case).
+# Only one set of paired end fastq.gz files will be checked (first sample in this case).
 # This is is sufficient, assuming all the files were created using the same library preparation.
 
 primerHits <- function(primer, fn) {
-  # Counts number of reads in which the primer is found
-  read_fastq <- readFastq(fn)
-  nhits <- vcountPattern(primer, sread(read_fastq), fixed = FALSE)
-  return(sum(nhits > 0))
+    # Counts number of reads in which the primer is found
+    read_fastq <- readFastq(fn)
+    nhits <- vcountPattern(primer, sread(read_fastq), fixed = FALSE)
+    return(sum(nhits > 0))
 }
-rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs), 
-      REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs))
+rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs[[1]]), 
+      FWD.ReverseReads = sapply(FWD.orients, primerHits, fn = fnRs[[1]]), 
+      REV.ForwardReads = sapply(REV.orients, primerHits, fn = fnFs[[1]]), 
+      REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs[[1]]))
 
 # Output:
 # FWD primer should mainly be found in the forward reads in its forward orientation.
+# FWD primer may also be found in some of the reverse reads in its reverse-complement orientation (due to read-through when amplicons are short).
+# REV primer may also be found in the forward reads in its reverse complement orientation (due to read-through when amplicons are short).
 # REV primer should mainly be found in the reverse reads in its forward orientation.
+
+# Nauras has some different code here
 
 # Create output filenames for the cutadapt-ed files.
 # Define the parameters for the cutadapt command.
@@ -120,16 +126,20 @@ if(!dir.exists(path.cut)) dir.create(path.cut)
 fnFs.cut <- file.path(path.cut, basename(fnFs))
 fnRs.cut <- file.path(path.cut, basename(fnRs))
 
-# Trim FWD off of R1 (forward reads) - 
-R1.flags <- paste0("-g", " ^", FWD) 
-# Trim REV off of R2 (reverse reads)
-R2.flags <- paste0("-G", " ^", REV) 
+FWD.RC <- dada2:::rc(FWD)
+REV.RC <- dada2:::rc(REV)
+# Trim FWD and the reverse-complement of REV off of R1 (forward reads)
+R1.flags <- paste("-g", FWD, "-a", REV.RC) 
+# Trim REV and the reverse-complement of FWD off of R2 (reverse reads)
+R2.flags <- paste("-G", REV, "-A", FWD.RC) 
 # Run Cutadapt
 for(i in seq_along(fnFs)) {
-    system2(cutadapt, args = c("-e 0.1 --discard-untrimmed", R1.flags, R2.flags,
-                             "-o", fnFs.cut[i], "-p", fnRs.cut[i], # output files
-                             fnFs[i], fnRs[i])) # input files
+    system2(cutadapt, args = c("-e 0.05 --discard-untrimmed",R1.flags, R2.flags, "-m",1, # -e sets the allowed error, -m 1 discards sequences of length zero after cutadapting
+                               "-n", 2, # -n 2 required to remove FWD and REV from reads
+                               "-o", fnFs.cut[i], "-p", fnRs.cut[i], # output files
+                               fnFs[i], fnRs[i])) # input files
 }
+
 
 # see here for a detailed explanation of the output:
 # https://cutadapt.readthedocs.io/en/stable/guide.html#cutadapt-s-output
@@ -141,8 +151,10 @@ for(i in seq_along(fnFs)) {
 
 # Count the presence of primers in the first cutadapt-ed sample to check if cutadapt worked as intended:
 
-rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs.cut),
-      REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs.cut))
+rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs.cut[[1]]), 
+      FWD.ReverseReads = sapply(FWD.orients, primerHits, fn = fnRs.cut[[1]]), 
+      REV.ForwardReads = sapply(REV.orients, primerHits, fn = fnFs.cut[[1]]), 
+      REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs.cut[[1]]))
 
 # The primer-free sequence read files are now ready to be analyzed.
 # Similar to the earlier steps of reading in FASTQ files, read in the names of the cutadapt-ed FASTQ files. 
@@ -230,8 +242,8 @@ filtRs <- file.path(path.cut, "filtered", basename(cutRs))
 
 # Set filter and trim parameters.
 
-out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs, truncLen =c(200,130),maxN = 0, maxEE = c(2,4), 
-                     truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = T) 
+out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs,maxN = 0, maxEE = c(2,4), 
+                     truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = T)
 
 
 # Save this output as RDS file for the read tracking table created downstream:
