@@ -1,1 +1,0 @@
-This is where all raw fastq files should be placed/symlinked before running the pipeline.
