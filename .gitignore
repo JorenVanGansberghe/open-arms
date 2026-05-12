@@ -1,34 +1,24 @@
-miseq/data/generated_meta
-miseq/data/meta
-miseq/COI
-miseq/.DS_Store
-miseq/env/.DS_Store
-miseq/.Rproj.user
-miseq/scripts/archived_scripts
-miseq/figures/
-miseq/env/archived_envs
-miseq/env/history_export 
-miseq/COI_sample_data.txt
-miseq/lulu.log_20251029_161734
 
-novaseq/data/generated_meta
-novaseq/COI/**
-!novaseq/COI/**/
-!novaseq/COI/**/README.md
-novaseq/.DS_Store
-novaseq/scripts/.DS_Store
-novaseq/.Rproj.user
-novaseq/figures/
-novaseq/novaseq_koster_2022_2023
+Project_18S/novaseq/data/generated_meta
+Project_18S/novaseq/18S/**
+!Project_18S/novaseq/18S/**/
+!Project_18S/novaseq/18S/**/README.md
+Project_18S/novaseq/.DS_Store
+Project_18S/novaseq/scripts/.DS_Store
+Project_18S/novaseq/.Rproj.user
+Project_18S/novaseq/figures/
+Project_18S/novaseq/novaseq_koster_2022_2023
 
-novaseq/.DS_Store
-post-processing/.DS_Store
-novaseq/data/.DS_Store
-.DS_Store
-.vscode
+Project_18S/novaseq/.DS_Store
+Project_18S/post-processing/.DS_Store
+Project_18S/novaseq/data/.DS_Store
+Project_18S/.DS_Store
+Project_18S/.vscode
 
-lulu.log_20260112_140629
+Project_18S/lulu.log_20260112_140629
 
-**/.DS_Store
+Project_18S/**/.DS_Store
 
-openarms_container.def
+Project_18S/openarms_container.def
+
+Project_18S/metadata/generated_meta/18S_batch3.4.5.6-metadata.csv
