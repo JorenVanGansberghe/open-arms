@@ -3,7 +3,7 @@
 library(argparse)
 
 # Initialize command line argument parser
-parser <- ArgumentParser(description = 'COI FILTERING AND TRIMMING')
+parser <- ArgumentParser(description = '18S FILTERING AND TRIMMING')
 
 # All of your command line arguments
 parser$add_argument('-d', '--directory', metavar = 'directory', type = 'character', required = TRUE, help = 'Specify cutadapt directory on machine.')
@@ -24,16 +24,16 @@ filter_and_trim <- function(seq_batch, cutadapt){
 ## it is important to load the dplyr library for the code to work ##
 library(dplyr)
 
-### dada2 COI workflow with cutadapt primer removal ###
+### dada2 18S workflow with cutadapt primer removal ###
 
 # read step 2 in dx.doi.org/10.17504/protocols.io.n92ldmmmnl5b/v1 for more information about 
 # which runs go through which function and why
 
 # directory containing the fastq.gz files
-path    <- file.path("novaseq", "COI", "fastq_files", seq_batch)
+path    <- file.path("novaseq", "18S", "fastq_files", seq_batch)
 
-# COI filtering directory
-coi_dir <- file.path("novaseq", "COI")
+# 18S filtering directory
+18S_dir <- file.path("novaseq", "18S")
 
 img_id  <- gsub("_", "", seq_batch)
 
@@ -71,8 +71,6 @@ fnRs <- sort(fnRs[grep("_2_H", fnRs)])
 
 
 # Designate sequences [including ambiguous nucleotides (base = N, Y, W, etc.) if present) of the primers used
-# The reverse COI primer jgHCO2198 contains Inosine nucleotides.
-# These "I" bases are not part of IUPAC convention and are not recognized by the packages used here. Change "I"s to "N"s.
 
 FWD <- "TGGTGCATGGCCGTTCTTAGT"  ## forward primer sequence
 REV <- "CATCTAAGGGCATCACAGACC"  ## reverse primer sequence
@@ -115,7 +113,6 @@ rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs[[1]]),
 # REV primer may also be found in the forward reads in its reverse complement orientation (due to read-through when amplicons are short).
 # REV primer should mainly be found in the reverse reads in its forward orientation.
 
-# Nauras has some different code here
 
 # Create output filenames for the cutadapt-ed files.
 # Define the parameters for the cutadapt command.
@@ -220,15 +217,15 @@ if(length(cutFs) <= 20) {
 
 # Print out the forward quality plot
 
-ggsave(paste0("COI_", img_id, "_quality_forward.jpg"),
-       plot = fwd_qual_plots, path = coi_dir, width = 15,
+ggsave(paste0("18S_", img_id, "_quality_forward.jpg"),
+       plot = fwd_qual_plots, path = 18S_dir, width = 15,
        height = 8, units = "in", dpi = 300)
 
 
 # Print out the reverse quality plot
 
-ggsave(paste0("COI_", img_id, "_quality_reverse.jpg"),
-       plot = rev_qual_plots, path = coi_dir, width = 15,
+ggsave(paste0("18S_", img_id, "_quality_reverse.jpg"),
+       plot = rev_qual_plots, path = 18S_dir, width = 15,
        height = 8, units = "in", dpi = 300)
 
 
@@ -247,7 +244,7 @@ out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs,maxN = 0, maxEE = c(2,4),
 
 
 # Save this output as RDS file for the read tracking table created downstream:
-saveRDS(out, file = file.path(coi_dir, paste("filter_and_trim_out_", img_id, "_mod4.rds", sep = "")))
+saveRDS(out, file = file.path(18S_dir, paste("filter_and_trim_out_", img_id, "_mod4.rds", sep = "")))
 
 
 # check how many reads remain after filtering
@@ -346,8 +343,8 @@ errR <- learnErrors(
 
 # save error calculation as RDS files:
 
-saveRDS(errF, file = file.path(coi_dir, paste("errF_mod4_", img_id, ".rds", sep = "")))
-saveRDS(errR, file = file.path(coi_dir, paste("errR_mod4_", img_id, ".rds", sep = "")))
+saveRDS(errF, file = file.path(18S_dir, paste("errF_mod4_", img_id, ".rds", sep = "")))
+saveRDS(errR, file = file.path(18S_dir, paste("errR_mod4_", img_id, ".rds", sep = "")))
 
 
 # As a sanity check, visualize the estimated error rates and write to file:
@@ -355,12 +352,12 @@ saveRDS(errR, file = file.path(coi_dir, paste("errR_mod4_", img_id, ".rds", sep 
 plot_err_F <- plotErrors(errF, nominalQ = TRUE)
 plot_err_R <- plotErrors(errR, nominalQ = TRUE)
 
-ggsave(paste0("COI_", img_id, "_mod4_error_forward.jpg"),
-       plot = plot_err_F, path = coi_dir, width = 15,
+ggsave(paste0("18S_", img_id, "_mod4_error_forward.jpg"),
+       plot = plot_err_F, path = 18S_dir, width = 15,
        height = 8, units = "in", dpi = 300)
 
-ggsave(paste0("COI_", img_id, "_mod4_error_reverse.jpg"),
-       plot = plot_err_R, path = coi_dir, width = 15,
+ggsave(paste0("18S_", img_id, "_mod4_error_reverse.jpg"),
+       plot = plot_err_R, path = 18S_dir, width = 15,
        height = 8, units = "in", dpi = 300)
 
 
@@ -382,8 +379,8 @@ names(dadaRs) <- sample.names
 
 # Save sequence-variant inference output as RDS files: 
 
-saveRDS(dadaFs, file = file.path(coi_dir, paste("dadaFs_", img_id, "_mod4.rds", sep = "")))
-saveRDS(dadaRs, file = file.path(coi_dir, paste("dadaRs_", img_id, "_mod4.rds", sep = "")))
+saveRDS(dadaFs, file = file.path(18S_dir, paste("dadaFs_", img_id, "_mod4.rds", sep = "")))
+saveRDS(dadaRs, file = file.path(18S_dir, paste("dadaRs_", img_id, "_mod4.rds", sep = "")))
 
 
 # Merge the forward and reverse reads.
@@ -392,7 +389,7 @@ saveRDS(dadaRs, file = file.path(coi_dir, paste("dadaRs_", img_id, "_mod4.rds", 
 mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs,
                       minOverlap = 10, maxMismatch = 1, verbose = TRUE)
 
-saveRDS(mergers, file = file.path(coi_dir, paste("mergers_", img_id, "_mod4.rds", sep = "")))
+saveRDS(mergers, file = file.path(18S_dir, paste("mergers_", img_id, "_mod4.rds", sep = "")))
 
 
 # Construct an amplicon sequence variant table (ASV) table
@@ -414,7 +411,7 @@ message(ncol(seqtab), " sequence variants were inferred")
 
 # Save sequence table
 
-saveRDS(seqtab, file = file.path(coi_dir, paste("seqtab_", img_id, "_mod4.rds", sep = "")))
+saveRDS(seqtab, file = file.path(18S_dir, paste("seqtab_", img_id, "_mod4.rds", sep = "")))
 
 
 ## Track reads throughout the pipeline ##
@@ -450,13 +447,13 @@ colnames(track)[1] <- "input"
 # Save to file
 
 write.table(track, 
-            file = file.path(coi_dir, paste("track_", img_id, "_mod4.txt", sep = "")),
+            file = file.path(18S_dir, paste("track_", img_id, "_mod4.txt", sep = "")),
             sep = "\t", col.names = NA)
 
 }
 
 # load all batches in fastq_files directory
-path    <- file.path("novaseq", "COI", "fastq_files")
+path    <- file.path("novaseq", "18S", "fastq_files")
 batch_list <- list.files(path, pattern = "Batch")
 
 # run load filter_and_trim function on each batch
