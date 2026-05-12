@@ -18,7 +18,7 @@
 # ---- CONFIGURATION (edit these as needed) ------------------------------------
 
 # Source directory (Genoscope delivery)
-source_dir <- "/cfs/klemming/projects/supr/naiss2025-23-46/ARMS_Genoscope_data_full/projet_DBB/ARMS-Macro/" # directory where eDNA data is located
+source_dir <- "/cfs/klemming/projects/supr/naiss2025-23-46/ARMS_Genoscope_data_full/projet_DBB/ARMS-Macro/" # directory where eDNA fastq data is located
 pcr1_dir   <- file.path(source_dir, "NEGATIVE_CONTROLS", "pcr1")
 pcr2_dir   <- file.path(source_dir, "NEGATIVE_CONTROLS", "pcr2")
 code_dir   <- file.path(source_dir, "18S_V1V2", "18S_V1V2_Metazoaire_SSUF04_SSURmod") # directory with the primers
@@ -95,6 +95,8 @@ all_flowcells <- unique(code_split[, 5])
 if (file.exists(batch_file)){
     # Incremental run: keep existing batch numbers, add new flowcells
     existing_batches <- read.csv(batch_file)
+    existing_batches$Batch_X <- as.integer(trimws(existing_batches$Batch_X))
+existing_batches$seq_run_code <- trimws(existing_batches$seq_run_code)
     new_flowcells <- all_flowcells[!all_flowcells %in% existing_batches$seq_run_code]
     if (length(new_flowcells) > 0){
         start <- max(existing_batches$Batch_X) + 1
@@ -109,10 +111,12 @@ if (file.exists(batch_file)){
         sample_batch <- existing_batches
         message("No new flowcells found")
     }
-    sample_batch <- as.matrix(sample_batch)
 } else {
     # First run: assign batch numbers from scratch
-    sample_batch <- cbind(1:length(all_flowcells), all_flowcells)
+    sample_batch <- data.frame(
+        Batch_X      = seq_len(length(all_flowcells)),
+        seq_run_code = all_flowcells
+    )
     colnames(sample_batch) <- c("Batch_X", "seq_run_code")
     message("First run: assigned ", nrow(sample_batch), " batch(es)")
 }
