@@ -11,8 +11,8 @@ Rscript novaseq/scripts/project_scripts/loessErrfun_mod4_sol.R -d /envs/git_env/
 echo "-----------------filter and trim done-----------------"
 
 # remove chimeras and singletons
-Rscript novaseq/scripts/original_scripts/COI_chimera.R
-echo "-----------------chimera removal done-----------------"
+Rscript novaseq/scripts/original_scripts/18S_chimera_singleton_removal_taxonomic_classification.R
+echo "-----------------chimera and singleton removal + taxonomic classification done-----------------"
 
 # identify and remove nuclear mitochondrial DNA pseudogenes (nuMTs)
 Rscript novaseq/scripts/original_scripts/MACSE_align_pseudo.R -d /envs/git_env/share/macse-2.07-0/macse_v2.07.jar
