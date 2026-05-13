@@ -4,7 +4,7 @@ export PATH=/envs/git_env/bin:$PATH
 
 set -e
 
-cd /PATH/TO/open-arms
+cd /work
 
 # filter and trim using cutadapt and dada2. ASV inference using dada2.
 Rscript novaseq/scripts/project_scripts/loessErrfun_mod4_sol.R -d /envs/git_env/bin/cutadapt
