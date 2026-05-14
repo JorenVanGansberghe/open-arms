@@ -33,7 +33,7 @@ library(dplyr)
 path    <- file.path("novaseq", "18S", "fastq_files", seq_batch)
 
 # 18S filtering directory
-18S_dir <- file.path("novaseq", "18S")
+dir_18S <- file.path("novaseq", "18S")
 
 img_id  <- gsub("_", "", seq_batch)
 
@@ -218,14 +218,14 @@ if(length(cutFs) <= 20) {
 # Print out the forward quality plot
 
 ggsave(paste0("18S_", img_id, "_quality_forward.jpg"),
-       plot = fwd_qual_plots, path = 18S_dir, width = 15,
+       plot = fwd_qual_plots, path = dir_18S, width = 15,
        height = 8, units = "in", dpi = 300)
 
 
 # Print out the reverse quality plot
 
 ggsave(paste0("18S_", img_id, "_quality_reverse.jpg"),
-       plot = rev_qual_plots, path = 18S_dir, width = 15,
+       plot = rev_qual_plots, path = dir_18S, width = 15,
        height = 8, units = "in", dpi = 300)
 
 
@@ -244,7 +244,7 @@ out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs,maxN = 0, maxEE = c(2,4),
 
 
 # Save this output as RDS file for the read tracking table created downstream:
-saveRDS(out, file = file.path(18S_dir, paste("filter_and_trim_out_", img_id, "_mod4.rds", sep = "")))
+saveRDS(out, file = file.path(dir_18S, paste("filter_and_trim_out_", img_id, "_mod4.rds", sep = "")))
 
 
 # check how many reads remain after filtering
@@ -343,8 +343,8 @@ errR <- learnErrors(
 
 # save error calculation as RDS files:
 
-saveRDS(errF, file = file.path(18S_dir, paste("errF_mod4_", img_id, ".rds", sep = "")))
-saveRDS(errR, file = file.path(18S_dir, paste("errR_mod4_", img_id, ".rds", sep = "")))
+saveRDS(errF, file = file.path(dir_18S, paste("errF_mod4_", img_id, ".rds", sep = "")))
+saveRDS(errR, file = file.path(dir_18S, paste("errR_mod4_", img_id, ".rds", sep = "")))
 
 
 # As a sanity check, visualize the estimated error rates and write to file:
@@ -353,11 +353,11 @@ plot_err_F <- plotErrors(errF, nominalQ = TRUE)
 plot_err_R <- plotErrors(errR, nominalQ = TRUE)
 
 ggsave(paste0("18S_", img_id, "_mod4_error_forward.jpg"),
-       plot = plot_err_F, path = 18S_dir, width = 15,
+       plot = plot_err_F, path = dir_18S, width = 15,
        height = 8, units = "in", dpi = 300)
 
 ggsave(paste0("18S_", img_id, "_mod4_error_reverse.jpg"),
-       plot = plot_err_R, path = 18S_dir, width = 15,
+       plot = plot_err_R, path = dir_18S, width = 15,
        height = 8, units = "in", dpi = 300)
 
 
@@ -379,8 +379,8 @@ names(dadaRs) <- sample.names
 
 # Save sequence-variant inference output as RDS files: 
 
-saveRDS(dadaFs, file = file.path(18S_dir, paste("dadaFs_", img_id, "_mod4.rds", sep = "")))
-saveRDS(dadaRs, file = file.path(18S_dir, paste("dadaRs_", img_id, "_mod4.rds", sep = "")))
+saveRDS(dadaFs, file = file.path(dir_18S, paste("dadaFs_", img_id, "_mod4.rds", sep = "")))
+saveRDS(dadaRs, file = file.path(dir_18S, paste("dadaRs_", img_id, "_mod4.rds", sep = "")))
 
 
 # Merge the forward and reverse reads.
@@ -389,7 +389,7 @@ saveRDS(dadaRs, file = file.path(18S_dir, paste("dadaRs_", img_id, "_mod4.rds", 
 mergers <- mergePairs(dadaFs, filtFs, dadaRs, filtRs,
                       minOverlap = 10, maxMismatch = 1, verbose = TRUE)
 
-saveRDS(mergers, file = file.path(18S_dir, paste("mergers_", img_id, "_mod4.rds", sep = "")))
+saveRDS(mergers, file = file.path(dir_18S, paste("mergers_", img_id, "_mod4.rds", sep = "")))
 
 
 # Construct an amplicon sequence variant table (ASV) table
@@ -411,7 +411,7 @@ message(ncol(seqtab), " sequence variants were inferred")
 
 # Save sequence table
 
-saveRDS(seqtab, file = file.path(18S_dir, paste("seqtab_", img_id, "_mod4.rds", sep = "")))
+saveRDS(seqtab, file = file.path(dir_18S, paste("seqtab_", img_id, "_mod4.rds", sep = "")))
 
 
 ## Track reads throughout the pipeline ##
@@ -447,7 +447,7 @@ colnames(track)[1] <- "input"
 # Save to file
 
 write.table(track, 
-            file = file.path(18S_dir, paste("track_", img_id, "_mod4.txt", sep = "")),
+            file = file.path(dir_18S, paste("track_", img_id, "_mod4.txt", sep = "")),
             sep = "\t", col.names = NA)
 
 }
