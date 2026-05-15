@@ -242,6 +242,17 @@ filtRs <- file.path(path.cut, "filtered", basename(cutRs))
 out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs,maxN = 0, maxEE = c(2,4), 
                      truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = T)
 
+# Remove samples with zero reads passing the filter
+exists_filt <- file.exists(filtFs) & file.exists(filtRs)
+if (any(!exists_filt)) {
+  message("The following samples had all reads removed and will be excluded:")
+  message(paste(sample.names[!exists_filt], collapse = ", "))
+}
+filtFs <- filtFs[exists_filt]
+filtRs <- filtRs[exists_filt]
+sample.names <- sample.names[exists_filt]
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
 
 # Save this output as RDS file for the read tracking table created downstream:
 saveRDS(out, file = file.path(dir_18S, paste("filter_and_trim_out_", img_id, "_mod4.rds", sep = "")))
