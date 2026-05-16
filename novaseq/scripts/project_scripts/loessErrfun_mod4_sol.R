@@ -254,6 +254,9 @@ sample.names <- sample.names[exists_filt]
 names(filtFs) <- sample.names
 names(filtRs) <- sample.names
 
+# Subset 'out' to match surviving samples
+out <- out[exists_filt, , drop = FALSE]
+
 # Save this output as RDS file for the read tracking table created downstream:
 saveRDS(out, file = file.path(dir_18S, paste("filter_and_trim_out_", img_id, "_mod4.rds", sep = "")))
 
