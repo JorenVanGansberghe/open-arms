@@ -72,8 +72,8 @@ fnRs <- sort(fnRs[grep("_2_H", fnRs)])
 
 # Designate sequences [including ambiguous nucleotides (base = N, Y, W, etc.) if present) of the primers used
 
-FWD <- "TGGTGCATGGCCGTTCTTAGT"  ## forward primer sequence
-REV <- "CATCTAAGGGCATCACAGACC"  ## reverse primer sequence
+FWD <- "GCTTGTCTCAAAGATTAAGCC"  ## forward primer sequence
+REV <- "CCTGCTGCCTTCCTTRGA"  ## reverse primer sequence
 
 
 # Verify the presence and orientation of these primers in the data
@@ -243,7 +243,18 @@ out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs,maxN = 0, maxEE = c(2,4),
                      truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = T)
 
 # Remove samples with zero reads passing the filter
-exists_filt <- file.exists(filtFs) & file.exists(filtRs)
+# function that counts reads in a sample
+count_reads <- function(f) {
+  tryCatch({
+    fastq <- readFastq(f)
+    length(fastq)
+  }, error = function(e) 0L)
+}
+
+exists_filt <- file.exists(filtFs) & file.exists(filtRs) &
+               (sapply(filtFs, count_reads) > 0) &
+               (sapply(filtRs, count_reads) > 0)
+
 if (any(!exists_filt)) {
   message("The following samples had all reads removed and will be excluded:")
   message(paste(sample.names[!exists_filt], collapse = ", "))
@@ -468,7 +479,12 @@ write.table(track,
 
 # load all batches in fastq_files directory
 path    <- file.path("novaseq", "18S", "fastq_files")
-batch_list <- list.files(path, pattern = "Batch")
+
+# batch_list contains all batches, but will likely run for longer than 24h
+# batch_list <- list.files(path, pattern = "Batch")
+
+# batch_list only contains a subset of the batches, can be multiple batches or just one
+batch_list <- c("Batch_3", "Batch_7", "Batch_8", "Batch_9",)
 
 # run load filter_and_trim function on each batch
 
