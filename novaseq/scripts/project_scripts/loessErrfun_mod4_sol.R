@@ -35,7 +35,9 @@ path    <- file.path("novaseq", "18S", "fastq_files", seq_batch)
 # 18S filtering directory
 dir_18S <- file.path("novaseq", "18S")
 
+# remove underscore from batchname to name output files to avoid problems
 img_id  <- gsub("_", "", seq_batch)
+
 
 message("The specified directory contains the following files:")
 print(list.files(path))
@@ -63,21 +65,22 @@ library(ggplot2)
 
 
 # generate matched lists of the forward and reverse read files, as well as parsing out the sample name
+# Forward reads
 fnFs <- list.files(path, pattern = ".fastq", full.names = TRUE)
 fnFs <- sort(fnFs[grep("_1_H", fnFs)])
-
+# Reverse reads
 fnRs <- list.files(path, pattern = ".fastq", full.names = TRUE)
 fnRs <- sort(fnRs[grep("_2_H", fnRs)])
 
 
-# Designate sequences [including ambiguous nucleotides (base = N, Y, W, etc.) if present) of the primers used
+# Designate sequences (including ambiguous nucleotides (base = N, Y, W, etc.) if present) of the primers used
 
 FWD <- "GCTTGTCTCAAAGATTAAGCC"  ## forward primer sequence
 REV <- "CCTGCTGCCTTCCTTRGA"  ## reverse primer sequence
 
 
 # Verify the presence and orientation of these primers in the data
-
+# Function creates complement of primer
 allOrients <- function(primer) {
     # Create all orientations of the input sequence
     require(Biostrings)
@@ -86,6 +89,7 @@ allOrients <- function(primer) {
                 RevComp = reverseComplement(dna))
     return(sapply(orients, toString))  # Convert back to character vector
 }
+# stores primers and complements
 FWD.orients <- allOrients(FWD)
 REV.orients <- allOrients(REV)
 FWD.orients
@@ -118,6 +122,7 @@ rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs[[1]]),
 # Define the parameters for the cutadapt command.
 # See here for a detailed explanation of paramter settings: https://cutadapt.readthedocs.io/en/stable/guide.html#
 
+# Creates output directory for cutadapt-trimmed files if it doesn't exist already
 path.cut <- file.path(path, "cutadapt")
 if(!dir.exists(path.cut)) dir.create(path.cut)
 fnFs.cut <- file.path(path.cut, basename(fnFs))
@@ -125,11 +130,11 @@ fnRs.cut <- file.path(path.cut, basename(fnRs))
 
 FWD.RC <- dada2:::rc(FWD)
 REV.RC <- dada2:::rc(REV)
-# Trim FWD and the reverse-complement of REV off of R1 (forward reads)
+# Build string with cutadapt flags to trim FWD and the reverse-complement of REV off of R1 (forward reads)
 R1.flags <- paste("-g", FWD, "-a", REV.RC) 
-# Trim REV and the reverse-complement of FWD off of R2 (reverse reads)
+# Build string with cutadapt flags to trim REV and the reverse-complement of FWD off of R2 (reverse reads)
 R2.flags <- paste("-G", REV, "-A", FWD.RC) 
-# Run Cutadapt
+# Run Cutadapt for every sample
 for(i in seq_along(fnFs)) {
     system2(cutadapt, args = c("-e 0.05 --discard-untrimmed",R1.flags, R2.flags, "-m",1, # -e sets the allowed error, -m 1 discards sequences of length zero after cutadapting
                                "-n", 2, # -n 2 required to remove FWD and REV from reads
@@ -165,13 +170,13 @@ cutFs <- sort(cutFs[grep("_1_H", cutFs)])
 cutRs <- list.files(path.cut, pattern = ".fastq", full.names = TRUE)
 cutRs <- sort(cutRs[grep("_2_H", cutRs)])
 
-# Check if forward and reverse files match:
+# Check if forward and reverse files match, stop script if they do not:
 
 if(length(cutFs) == length(cutRs)) print("Forward and reverse files match. Go forth and explore")
 if (length(cutFs) != length(cutRs)) stop("Forward and reverse files do not match. Better go back and have a check")
 
 
-# Extract sample names, assuming filenames have format:
+# Extract sample names, assuming filenames have same format:
 get.sample.name <- function(fname) {
   subnames <- strsplit(basename(fname), "_")[[1]]
   paste(subnames[1:3], collapse = "_")
@@ -183,7 +188,7 @@ print(head(sample.names))
 
 
 # Inspect read quality profiles. 
-# If there are more than 20 samples, grab 20 randomly
+# If there are more than 20 samples, grab 20 randomly, if less than 20, grab all
 
 set.seed(1)
 
@@ -231,7 +236,7 @@ ggsave(paste0("18S_", img_id, "_quality_reverse.jpg"),
 
 ## Filter and trim ##
 
-# Assign filenames to the fastq.gz files of filtered and trimmed reads.
+# Assign path and filenames to the fastq.gz files of filtered and trimmed reads.
 
 filtFs <- file.path(path.cut, "filtered", basename(cutFs))
 filtRs <- file.path(path.cut, "filtered", basename(cutRs))
@@ -422,8 +427,8 @@ saveRDS(mergers, file = file.path(dir_18S, paste("mergers_", img_id, "_mod4.rds"
 # "Duplicate sequences detected and merged" may appear as output during the sequence table creation
 # This is not a problem, just ignore it.
 
-
 seqtab <- makeSequenceTable(mergers)
+
 
 # if only one sample is running, makeSequenceTable will not automatically add a row name
 # this becomes problematic further downstream, so here we add row names for runs with only one sample
@@ -469,13 +474,15 @@ track<-cbind(input$records,track)
 colnames(track)[1] <- "input"
 
 
-# Save to file
+# Save read tracking table to tab-separated text file
 
 write.table(track, 
             file = file.path(dir_18S, paste("track_", img_id, "_mod4.txt", sep = "")),
             sep = "\t", col.names = NA)
 
-}
+} # end of filter_and_trim function
+
+
 
 # load all batches in fastq_files directory
 path    <- file.path("novaseq", "18S", "fastq_files")
@@ -484,7 +491,7 @@ path    <- file.path("novaseq", "18S", "fastq_files")
 # batch_list <- list.files(path, pattern = "Batch")
 
 # batch_list only contains a subset of the batches, can be multiple batches or just one
-batch_list <- c("Batch_3", "Batch_7", "Batch_8", "Batch_9",)
+batch_list <- c("Batch_3", "Batch_7", "Batch_8", "Batch_9")
 
 # run load filter_and_trim function on each batch
 
