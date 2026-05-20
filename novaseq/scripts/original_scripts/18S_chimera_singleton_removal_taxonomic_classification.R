@@ -58,26 +58,8 @@ mode(seqtab.nochim) = "numeric"
 
 # Subset columns with counts of > 1 and save to file
 seqtab.nochim.nosingle <- seqtab.nochim[,colSums(seqtab.nochim) > 1]
-saveRDS(seqtab.nochim.nosingle, file = file.path(output_dir, "seqtab_nochim_nosingle_coi.rds"))
+saveRDS(seqtab.nochim.nosingle, file = file.path(output_dir, "seqtab_nochim_nosingle_18S.rds"))
 
-# Write a fasta file of the final, non-chimeric , non-singleton sequences with short >ASV... type headers
-
-asv_seqs <- colnames(seqtab.nochim.nosingle)
-asv_headers <- vector(dim(seqtab.nochim.nosingle)[2], mode = "character")
-for (i in 1:dim(seqtab.nochim.nosingle)[2]) {
-  asv_headers[i] <- paste(">ASV", i, sep="")
-}
-
-asv_fasta <- c(rbind(asv_headers, asv_seqs))
-write(asv_fasta, file = file.path(output_dir, "18S_nochim_nosingle_ASVs.fa"))
-
-# Write an ASV count table of the final, non-chimeric, non-singleton sequences with short >ASV... type names
-
-colnames(seqtab.nochim.nosingle) <- paste0("ASV", seq(ncol(seqtab.nochim.nosingle)))
-
-ASV_counts<-t(seqtab.nochim.nosingle) # transposing table
-
-write.table(ASV_counts, file = file.path(output_dir, "18S_ASV_counts_nosingle.txt"), sep = "\t", quote = F, col.names = NA)
 
 ## Track reads through the entire dada2 pipeline ##
 
@@ -125,7 +107,7 @@ write.table(track_18S, file = file.path(output_dir, "track_18S.txt"), sep = "\t"
 
 # Read non-chimeric, no-singleton sequence table again (in case the processes above have altered it)
 
-seqtab.nochim.nosingle<-readRDS("seqtab_nochim_nosingle_18S.rds")
+seqtab.nochim.nosingle<-readRDS(file = file.path(output_dir, "seqtab_nochim_nosingle_18S.rds"))
 
 ## Official Silva v138.2 (prokaryote and eukaryote reference set)
 
@@ -137,7 +119,7 @@ silva.ref<-"novaseq/Taxonomy_reference_sets/silva_nr99_v138.2_toSpecies_trainset
 
 taxa_silva <- assignTaxonomy(seqtab.nochim.nosingle, silva.ref, minBoot=70, multithread=T,outputBootstraps = T)
 
-saveRDS(taxa_silva,"taxa_18S_silva.rds")
+saveRDS(taxa_silva, file = file.path(output_dir, "taxa_18S_silva.rds"))
 
 ## Contributed Silva Eukaryote v132 99% clustered reference set
 
@@ -150,7 +132,7 @@ silva.euk.ref <- "novaseq/Taxonomy_reference_sets/silva_132.18s.99_rep_set.dada2
 
 taxa_silva_euk <- assignTaxonomy(seqtab.nochim.nosingle, silva.euk.ref, minBoot=70, multithread=T,outputBootstraps = T,taxLevels=c("Domain","Division","Division_X","Subdivision","Class","Order_Family","Species","Strain"))
 
-saveRDS(taxa_silva_euk,"taxa_18S_silva_euk.rds")
+saveRDS(taxa_silva_euk, file = file.path(output_dir,"taxa_18S_silva_euk.rds"))
 
 ## PR2 v5.0.0
 
@@ -163,7 +145,7 @@ pr2.ref <- "novaseq/Taxonomy_reference_sets/pr2_version_5.1.1_SSU_dada2.fasta.gz
 
 taxa_pr2 <- assignTaxonomy(seqtab.nochim.nosingle, pr2.ref, minBoot=70, multithread=T,outputBootstraps = T, taxLevels = c("Domain","Supergroup","Division","Subdivision","Phylum","Class_X","Class_Order_Family","Genus","Species"))
 
-saveRDS(taxa_pr2,"taxa_18S_pr2.rds")
+saveRDS(taxa_pr2, file = file.path(output_dir,"taxa_18S_pr2.rds"))
 
 ### Continue with next script for 18S ensemble taxonomy ###
 
