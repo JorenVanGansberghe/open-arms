@@ -18,20 +18,12 @@ echo "-----------------chimera and singleton removal + taxonomic classification 
 # generate fasta file, count table and ensemble taxonomy for 18S ASVs
 Rscript novaseq/scripts/original_scripts/Ensemble_taxonomy_18S_ASVs.R
 
-# COI specific
-# identify and remove nuclear mitochondrial DNA pseudogenes (nuMTs)
-#Rscript novaseq/scripts/original_scripts/MACSE_align_pseudo.R -d /envs/git_env/share/macse-2.07-0/macse_v2.07.jar
-#echo "-----------------nuMT removal done-----------------"
-
-# subset non-nuMT ASVs from the COI_nochim_nosingle.fa file
-grep -w -A 1 -f novaseq/COI/pseudo/nonpseudo.combined.names.txt novaseq/COI/COI_nochim_nosingle_ASVs.fa > novaseq/COI/pseudo/COI_nochim_nosingle_nopseudo.fa  --no-group-separator
-
 # negative control correction
-Rscript novaseq/scripts/original_scripts/COI_blank_corr.R
+Rscript novaseq/scripts/original_scripts/18S_blank_corr.R
 echo "-----------------negative control correction done-----------------"
 
 # subset the ASVs remaining after negative control correction
-grep -w -A 1 -f novaseq/COI/blank_corr/no_contam_headers_COI.txt novaseq/COI/pseudo/COI_nochim_nosingle_nopseudo.fa  --no-group-separator > novaseq/COI/blank_corr/COI_nochim_nosingle_nopseudo_nocontam.fa 
+grep -w -A 1 -f novaseq/18S/blank_corr/no_contam_headers_18S.txt novaseq/18S/18S_nochim_nosingle_ASVs.fa  --no-group-separator > novaseq/18S/blank_corr/18S_nochim_nosingle_nocontam.fa 
 
 # generate headers with the abundance of each ASV included
 Rscript novaseq/scripts/original_scripts/dereplication_headers.R
