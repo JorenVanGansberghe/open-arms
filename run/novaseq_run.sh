@@ -30,10 +30,12 @@ Rscript novaseq/scripts/original_scripts/dereplication_headers.R
 echo "-----------------dereplication headers done-----------------"
 
 # replace headers with dereplicated header names
-grep -v "^--" novaseq/COI/blank_corr/COI_nochim_nosingle_nopseudo_nocontam.fa | awk 'NR%2==0' | paste -d'\n' novaseq/COI/ASV_dereplicated.txt - > novaseq/COI/COI_dereplicated_ASVs.fa
+grep -v "^--" novaseq/18S/blank_corr/18S_nochim_nosingle_nocontam.fa | awk 'NR%2==0' | paste -d'\n' novaseq/18S/ASV_dereplicated.txt - > novaseq/18S/18S_dereplicated_ASVs.fa
 
 # change directory for swarm to run 
-pushd novaseq/COI/
+pushd novaseq/18S/
+
+
 
 # cluster ASVs into MOTUs using swarm
 /envs/git_env/bin/swarm -d 13 -i swarm/internal.txt -o swarm/output.txt -s swarm/statistics.txt -u swarm/uclust.txt -w swarm/COI_cluster_reps.fa COI_dereplicated_ASVs.fa
