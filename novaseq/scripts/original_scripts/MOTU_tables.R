@@ -1,15 +1,15 @@
 #!/usr/bin/env Rscript
 
-### COI ###
+### 18S ###
 
 # define and create output directory
 
-MOTU_dir <- "novaseq/COI/MOTU"
+MOTU_dir <- "novaseq/18S/MOTU"
 if(!dir.exists(MOTU_dir)) dir.create(MOTU_dir)
 
 # Read the uclust.txt table (from swarm output)
 
-uclust <- read.table("novaseq/COI/swarm/uclust.txt", sep = "\t", stringsAsFactors = F)
+uclust <- read.table("novaseq/18S/swarm/uclust.txt", sep = "\t", stringsAsFactors = F)
 
 # Delete the rows with value "C" in first column (to remove one of the S / C duplicate ASV names)
 
@@ -33,7 +33,7 @@ colnames(motu_asv_list)<-c("ASV", "MOTU")
 
 # Read the ASV count table (output from blank correction)
 
-asv_counts <- read.table("novaseq/COI/blank_corr/asv_no_contaminants_COI.txt", sep = "\t", header = T, stringsAsFactors = F)
+asv_counts <- read.table("novaseq/18S/blank_corr/asv_no_contaminants_18S.txt", sep = "\t", header = T, stringsAsFactors = F)
 
 # Sort motu_asv_list based on order in asv_counts
 
@@ -52,4 +52,4 @@ motu_table <- aggregate(. ~ MOTU, data=asv_counts, FUN=sum)
 
 # Write MOTU table to file
 
-write.table(motu_table, file = file.path(MOTU_dir, "motu_table_COI.txt"), sep="\t", row.names=F, quote=F)
+write.table(motu_table, file = file.path(MOTU_dir, "motu_table_18S.txt"), sep="\t", row.names=F, quote=F)

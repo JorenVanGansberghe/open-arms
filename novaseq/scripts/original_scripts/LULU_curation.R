@@ -5,13 +5,13 @@ install_github("tobiasgf/lulu")
 
 library(lulu)
 
-# specify COI/MOTU directory
+# specify 18S/MOTU directory
 
-MOTU_dir <- "novaseq/COI/MOTU"
+MOTU_dir <- "novaseq/18S/MOTU"
 
 # Read MOTU table
 
-motu_table <- read.table(file = file.path(MOTU_dir, "motu_table_COI.txt"), sep = "\t", header = T, row.names = 1, as.is = T)
+motu_table <- read.table(file = file.path(MOTU_dir, "motu_table_18S.txt"), sep = "\t", header = T, row.names = 1, as.is = T)
 
 # Read match list
 
@@ -19,15 +19,15 @@ matchlist <- read.table(file = file.path(MOTU_dir, "match_list.txt"), sep="\t", 
 
 # Run curation
 
-curated_result <- lulu(motu_table, matchlist,minimum_match = 0.84,minimum_relative_cooccurence = 0.9)
+curated_result <- lulu(motu_table, matchlist,minimum_match = 0.90, minimum_ratio=100, minimum_relative_cooccurence = 0.95)
 
 # Write curated MOTU table to file
 
-write.table(curated_result$curated_table, file = file.path(MOTU_dir, "lulu_motu_table_COI.txt"), sep = "\t", quote = F, col.names = NA)
+write.table(curated_result$curated_table, file = file.path(MOTU_dir, "lulu_motu_table_18S.txt"), sep = "\t", quote = F, col.names = NA)
 
 # Write data on how MOTUs where mapped to file
 
-write.table(curated_result$otu_map, file = file.path(MOTU_dir, "motu_map_lulu_COI.txt"), sep = "\t", quote = F, col.names = NA)
+write.table(curated_result$otu_map, file = file.path(MOTU_dir, "motu_map_lulu_18S.txt"), sep = "\t", quote = F, col.names = NA)
 
 # Write headers of curated MOTUs to file to subset the corresponding representative sequences of the swarm cluster fasta file later on
 
