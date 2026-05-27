@@ -59,16 +59,6 @@ echo "-----------------LULU curation done-----------------"
 # generate fasta files with remaining MOTUs after LULU curation
 grep -w -A 1 -f novaseq/18S/MOTU/lulu_curated_headers.txt novaseq/18S/MOTU/18S_cluster_reps_lulu_ready.fa --no-group-separator > novaseq/18S/MOTU/18S_cluster_reps_lulu_curated.fa
 
+# subsetting taxonomy of 18S MOTUs
+Rscript novaseq/scripts/original_scripts/Subset_18S_taxonomy.R
 
-
-# taxonomic assignment using BOLDigger3 on public animal library (--db 1) on exhaustive search mode (--mode 3)
-pip install boldigger3==2.1.4
-pip install lxml-html-clean==0.4.3
-boldigger3 identify novaseq/COI/MOTU/COI_cluster_reps_lulu_curated.fa --db 1 --mode 3
-
-echo "-----------------BOLDigger done-----------------"
-
-# create taxonomic table from boldigger output 
-Rscript novaseq/scripts/project_scripts/BOLDigger_tax_table.R
-
-echo "-----------------script finished successfully-----------------"

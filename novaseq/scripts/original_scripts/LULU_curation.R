@@ -19,7 +19,7 @@ matchlist <- read.table(file = file.path(MOTU_dir, "match_list.txt"), sep="\t", 
 
 # Run curation
 
-curated_result <- lulu(motu_table, matchlist,minimum_match = 0.90, minimum_ratio=100, minimum_relative_cooccurence = 0.95)
+curated_result <- lulu(motu_table, matchlist, minimum_match = 0.90, minimum_ratio=100, minimum_relative_cooccurence = 0.95)
 
 # Write curated MOTU table to file
 
