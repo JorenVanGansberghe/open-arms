@@ -2,13 +2,13 @@
 
 # Set the allocation to be charged for this job
 # not required if you have set a default allocation
-#SBATCH -A naiss2025-22-761
+#SBATCH -A naiss2026-4-900
 
 # The name of the script is myjob
 #SBATCH -J openarms-joren-18S-2022-2025
 
 # The partition
-#SBATCH -p main ##main is the part of the cluster where you run it?, main is 24h max
+#SBATCH -p main ##main is the part of the cluster where you run it, main is 24h max
 
 # 24 hours wall clock time will be given to this job
 #SBATCH -t 24:00:00
