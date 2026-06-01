@@ -9,7 +9,8 @@ cd /work
 # filter and trim using cutadapt and dada2. ASV inference using dada2.
 Rscript novaseq/scripts/project_scripts/loessErrfun_mod4_sol.R -d /envs/git_env/bin/cutadapt
 echo "-----------------filter and trim done-----------------"
-break
+
+exit 0 
 
 # remove chimeras and singletons
 Rscript novaseq/scripts/original_scripts/18S_chimera_singleton_removal_taxonomic_classification.R
