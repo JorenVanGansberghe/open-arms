@@ -491,7 +491,9 @@ path    <- file.path("novaseq", "18S", "fastq_files")
 # batch_list <- list.files(path, pattern = "Batch")
 
 # batch_list only contains a subset of the batches, can be multiple batches or just one
-batch_list <- c("Batch_3", "Batch_7", "Batch_8")
+# batches already ran: 1, 3, 7, 8, 2, 9, 11, 4, 5, 6, 10                          
+# (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+batch_list <- c("Batch_10")
 
 # run load filter_and_trim function on each batch
 
