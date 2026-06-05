@@ -139,7 +139,7 @@ for(i in seq_along(fnFs)) {
     system2(cutadapt, args = c("-e 0.05 --discard-untrimmed",R1.flags, R2.flags, "-m",1, # -e sets the allowed error, -m 1 discards sequences of length zero after cutadapting
                                "-n", 2, # -n 2 required to remove FWD and REV from reads
                                "-o", fnFs.cut[i], "-p", fnRs.cut[i], # output files
-                               fnFs[i], fnRs[i])) # input files
+                               fnFs[i], fnRs[i])) # input files                              
 }
 
 
@@ -185,6 +185,35 @@ sample.names <- unname(sapply(cutFs, get.sample.name))
 
 print("The extracted sample names are:")
 print(head(sample.names))
+
+
+# Remove samples with zero reads
+# function that counts reads in a sample
+count_reads <- function(f) {
+  tryCatch({
+    fastq <- readFastq(f)
+    length(fastq)
+  }, error = function(e) 0L)
+}
+
+min_reads <- 1000
+
+# Remove samples where cutadapt produced empty or near-empty files
+cutadapt_read_counts <- sapply(cutFs, count_reads)
+keep_cut <- cutadapt_read_counts >= min_reads
+
+if (any(!keep_cut)) {
+  message("The following samples had insufficient reads after cutadapt and will be excluded:")
+  message(paste(sample.names[!keep_cut], collapse = ", "))
+  cutFs        <- cutFs[keep_cut]
+  cutRs        <- cutRs[keep_cut]
+  sample.names <- sample.names[keep_cut]
+}
+
+# Hard stop if no samples survive
+if (length(cutFs) == 0) {
+  stop("No samples passed the cutadapt read count threshold. Exiting.")
+}
 
 
 # Inspect read quality profiles. 
@@ -235,34 +264,6 @@ ggsave(paste0("18S_", img_id, "_quality_reverse.jpg"),
 
 
 ## Filter and trim ##
-
-# Remove samples with zero reads
-# function that counts reads in a sample
-count_reads <- function(f) {
-  tryCatch({
-    fastq <- readFastq(f)
-    length(fastq)
-  }, error = function(e) 0L)
-}
-
-min_reads <- 1000
-
-# Remove samples where cutadapt produced empty or near-empty files
-cutadapt_read_counts <- sapply(cutFs, count_reads)
-keep_cut <- cutadapt_read_counts >= min_reads
-
-if (any(!keep_cut)) {
-  message("The following samples had insufficient reads after cutadapt and will be excluded:")
-  message(paste(sample.names[!keep_cut], collapse = ", "))
-  cutFs        <- cutFs[keep_cut]
-  cutRs        <- cutRs[keep_cut]
-  sample.names <- sample.names[keep_cut]
-}
-
-# Hard stop if no samples survive
-if (length(cutFs) == 0) {
-  stop("No samples passed the cutadapt read count threshold. Exiting.")
-}
 
 # Assign path and filenames to the fastq.gz files of filtered and trimmed reads.
 
@@ -534,7 +535,7 @@ path    <- file.path("novaseq", "18S", "fastq_files")
 # batch_list only contains a subset of the batches, can be multiple batches or just one
 # batches already ran: 1, 3, 7, 8, 2, 9, 11, 4, 5, 6, 10                          
 # (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
-batch_list <- c("Batch_11")
+batch_list <- c("Batch_7")
 
 # run load filter_and_trim function on each batch
 
