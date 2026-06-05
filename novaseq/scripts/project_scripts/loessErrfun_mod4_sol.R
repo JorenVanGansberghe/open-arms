@@ -39,7 +39,7 @@ dir_18S <- file.path("novaseq", "18S")
 img_id  <- gsub("_", "", seq_batch)
 
 
-message("The specified directory contains the following files:")
+cat("The specified directory contains the following files:")
 print(list.files(path))
 
 
@@ -203,8 +203,8 @@ cutadapt_read_counts <- sapply(cutFs, count_reads)
 keep_cut <- cutadapt_read_counts >= min_reads
 
 if (any(!keep_cut)) {
-  message("The following samples had insufficient reads after cutadapt and will be excluded:")
-  message(paste(sample.names[!keep_cut], collapse = ", "))
+  cat("The following samples had insufficient reads after cutadapt and will be excluded:")
+  cat(paste(sample.names[!keep_cut], collapse = ", "))
   cutFs        <- cutFs[keep_cut]
   cutRs        <- cutRs[keep_cut]
   sample.names <- sample.names[keep_cut]
@@ -284,7 +284,7 @@ chunk_id <- 1
 for (start_i in seq(1, length(cutFs), by = chunk_size)) {
     end_i <- min(start_i + chunk_size - 1, length(cutFs))
     idx <- start_i:end_i
-    message("Filtering samples ", start_i, "-", end_i, " of ", length(cutFs))
+    cat("Filtering samples ", start_i, "-", end_i, " of ", length(cutFs))
     out_list[[chunk_id]] <- filterAndTrim(
         cutFs[idx], filtFs[idx], cutRs[idx], filtRs[idx],
         maxN = 0, maxEE = c(2, 4), truncQ = 2, minLen = 50,
@@ -303,8 +303,8 @@ exists_filt <- file.exists(filtFs) & file.exists(filtRs) &
                (sapply(filtRs, count_reads) > min_reads)
 
 if (any(!exists_filt)) {
-  message("The following samples had all reads removed and will be excluded:")
-  message(paste(sample.names[!exists_filt], collapse = ", "))
+  cat("The following samples had all reads removed and will be excluded:")
+  cat(paste(sample.names[!exists_filt], collapse = ", "))
 }
 filtFs <- filtFs[exists_filt]
 filtRs <- filtRs[exists_filt]
@@ -479,7 +479,7 @@ if(length(sample.names) == 1) {
 }
 
 # How many sequence variants were inferred? 
-message(ncol(seqtab), " sequence variants were inferred")
+cat(ncol(seqtab), " sequence variants were inferred")
 
 # Save sequence table
 
