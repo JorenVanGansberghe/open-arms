@@ -236,18 +236,7 @@ ggsave(paste0("18S_", img_id, "_quality_reverse.jpg"),
 
 ## Filter and trim ##
 
-# Assign path and filenames to the fastq.gz files of filtered and trimmed reads.
-
-filtFs <- file.path(path.cut, "filtered", basename(cutFs))
-filtRs <- file.path(path.cut, "filtered", basename(cutRs))
-
-
-# Set filter and trim parameters.
-
-out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs,maxN = 0, maxEE = c(2,4), 
-                     truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = T)
-
-# Remove samples with zero reads passing the filter
+# Remove samples with zero reads
 # function that counts reads in a sample
 count_reads <- function(f) {
   tryCatch({
@@ -256,9 +245,61 @@ count_reads <- function(f) {
   }, error = function(e) 0L)
 }
 
+min_reads <- 1000
+
+# Remove samples where cutadapt produced empty or near-empty files
+cutadapt_read_counts <- sapply(cutFs, count_reads)
+keep_cut <- cutadapt_read_counts >= min_reads
+
+if (any(!keep_cut)) {
+  message("The following samples had insufficient reads after cutadapt and will be excluded:")
+  message(paste(sample.names[!keep_cut], collapse = ", "))
+  cutFs        <- cutFs[keep_cut]
+  cutRs        <- cutRs[keep_cut]
+  sample.names <- sample.names[keep_cut]
+}
+
+# Hard stop if no samples survive
+if (length(cutFs) == 0) {
+  stop("No samples passed the cutadapt read count threshold. Exiting.")
+}
+
+# Assign path and filenames to the fastq.gz files of filtered and trimmed reads.
+
+filtFs <- file.path(path.cut, "filtered", basename(cutFs))
+filtRs <- file.path(path.cut, "filtered", basename(cutRs))
+
+
+# Set filter and trim parameters.
+
+#out <- filterAndTrim(cutFs, filtFs, cutRs, filtRs,maxN = 0, maxEE = c(2,4), 
+                     #truncQ = 2, minLen = 50, rm.phix = TRUE, compress = TRUE, multithread = T)
+
+# solving out of memory issues by spliting samples in chunks onf 20
+chunk_size <- 20
+out_list <- list()
+chunk_id <- 1
+
+for (start_i in seq(1, length(cutFs), by = chunk_size)) {
+    end_i <- min(start_i + chunk_size - 1, length(cutFs))
+    idx <- start_i:end_i
+    message("Filtering samples ", start_i, "-", end_i, " of ", length(cutFs))
+    out_list[[chunk_id]] <- filterAndTrim(
+        cutFs[idx], filtFs[idx], cutRs[idx], filtRs[idx],
+        maxN = 0, maxEE = c(2, 4), truncQ = 2, minLen = 50,
+        rm.phix = TRUE, compress = TRUE, multithread = TRUE
+    )
+    chunk_id <- chunk_id + 1
+    gc()
+}
+out <- do.call(rbind, out_list)
+
+
+# Remove samples with zero reads passing the filter
+
 exists_filt <- file.exists(filtFs) & file.exists(filtRs) &
-               (sapply(filtFs, count_reads) > 0) &
-               (sapply(filtRs, count_reads) > 0)
+               (sapply(filtFs, count_reads) > min_reads) &
+               (sapply(filtRs, count_reads) > min_reads)
 
 if (any(!exists_filt)) {
   message("The following samples had all reads removed and will be excluded:")
@@ -493,7 +534,7 @@ path    <- file.path("novaseq", "18S", "fastq_files")
 # batch_list only contains a subset of the batches, can be multiple batches or just one
 # batches already ran: 1, 3, 7, 8, 2, 9, 11, 4, 5, 6, 10                          
 # (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
-batch_list <- c("Batch_10")
+batch_list <- c("Batch_11")
 
 # run load filter_and_trim function on each batch
 
