@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# prints warnings automatically in error file
+options(warn = 1)
+
 library(argparse)
 
 # Initialize command line argument parser
@@ -106,10 +109,13 @@ primerHits <- function(primer, fn) {
     nhits <- vcountPattern(primer, sread(read_fastq), fixed = FALSE)
     return(sum(nhits > 0))
 }
-rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs[[1]]), 
+
+print("Number of reads containing forward and revdrse primer sequences:")
+print(rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs[[1]]), 
       FWD.ReverseReads = sapply(FWD.orients, primerHits, fn = fnRs[[1]]), 
       REV.ForwardReads = sapply(REV.orients, primerHits, fn = fnFs[[1]]), 
       REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs[[1]]))
+)
 
 # Output:
 # FWD primer should mainly be found in the forward reads in its forward orientation.
@@ -153,10 +159,11 @@ for(i in seq_along(fnFs)) {
 
 # Count the presence of primers in the first cutadapt-ed sample to check if cutadapt worked as intended:
 
-rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs.cut[[1]]), 
+print(rbind(FWD.ForwardReads = sapply(FWD.orients, primerHits, fn = fnFs.cut[[1]]), 
       FWD.ReverseReads = sapply(FWD.orients, primerHits, fn = fnRs.cut[[1]]), 
       REV.ForwardReads = sapply(REV.orients, primerHits, fn = fnFs.cut[[1]]), 
       REV.ReverseReads = sapply(REV.orients, primerHits, fn = fnRs.cut[[1]]))
+)
 
 # The primer-free sequence read files are now ready to be analyzed.
 # Similar to the earlier steps of reading in FASTQ files, read in the names of the cutadapt-ed FASTQ files. 
@@ -535,7 +542,7 @@ path    <- file.path("novaseq", "18S", "fastq_files")
 # batch_list only contains a subset of the batches, can be multiple batches or just one
 # batches already ran: 1, 3, 7, 8, 2, 9, 11, 4, 5, 6, 10                          
 # (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
-batch_list <- c("Batch_7")
+batch_list <- c("Batch_11")
 
 # run load filter_and_trim function on each batch
 
