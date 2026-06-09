@@ -10,15 +10,18 @@ output_dir <- file.path("novaseq", "18S")
 
 # load sequencing batch numbers
 batch_dir    <- file.path("novaseq", "18S", "fastq_files")
-batch_list <- list.files(batch_dir, pattern = "Batch")
+#batch_list <- list.files(batch_dir, pattern = "Batch")
+batch_list <- grep("^(?!.*Batch_5).*Batch", 
+                   list.files(batch_dir), 
+                   value = TRUE, perl = TRUE)
 
 get_sample_name <- function(fname) strsplit(basename(fname), "_")[[1]][2]
-18S_run <- unname(sapply(batch_list, get_sample_name))
+run_18S <- unname(sapply(batch_list, get_sample_name))
 
 # Load the sequence tables of the different sequence runs
 
 rds_list <- list()
-for (run in 18S_run) {
+for (run in run_18S) {
   run_file <- file.path(input_dir, paste("seqtab_Batch", run, "_mod4.rds", sep = ""))
   rds_run <- readRDS(run_file)
   rds_list[[as.character(run)]] <- rds_run
@@ -74,7 +77,7 @@ colnames(track_nochim_nosingle) <- c("nonchim", "nosingle")
 # Read tracking tables of the single runs and combine
 
 track_list <- list()
-for (run in 18S_run) {
+for (run in run_18S) {
   track_file <- file.path(input_dir, paste("track_Batch", run, "_mod4.txt", sep = ""))
   txt_track <- read.table(track_file, sep = "\t", header = T, row.names = 1)
   track_list[[as.character(run)]] <- txt_track
