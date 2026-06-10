@@ -26,9 +26,9 @@ metadata/generated_meta/18S_batch3.4.5.6-metadata.csv
 sbatch_jobs
 
 # Files with taxonomy reference sets that are to big for GitHub
-novaseq/Taxonomy_reference_sets/silva_nr99_v138.2_toSpecies_trainset.fa.gz
-novaseq/Taxonomy_reference_sets/silva_132.18s.99_rep_set.dada2.fa.gz
-novaseq/Taxonomy_reference_sets/pr2_version_5.1.1_SSU_dada2.fasta.gz
+metadata/Taxonomy_reference_sets/silva_nr99_v138.2_toSpecies_trainset.fa.gz
+metadata/Taxonomy_reference_sets/silva_132.18s.99_rep_set.dada2.fa.gz
+metadata/Taxonomy_reference_sets/pr2_version_5.1.1_SSU_dada2.fasta.gz
 
 # Random big file
 core
