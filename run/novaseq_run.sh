@@ -7,14 +7,14 @@ set -e
 cd /work
 
 # filter and trim using cutadapt and dada2. ASV inference using dada2.
-Rscript novaseq/scripts/project_scripts/loessErrfun_mod4_sol.R -d /envs/git_env/bin/cutadapt
-echo "-----------------filter and trim done-----------------"
-
-exit 0 
+#Rscript novaseq/scripts/project_scripts/loessErrfun_mod4_sol.R -d /envs/git_env/bin/cutadapt
+#echo "-----------------filter and trim done-----------------"
 
 # remove chimeras and singletons
 Rscript novaseq/scripts/original_scripts/18S_chimera_singleton_removal_taxonomic_classification.R
 echo "-----------------chimera and singleton removal + taxonomic classification done-----------------"
+
+exit 0 
 
 # generate fasta file, count table and ensemble taxonomy for 18S ASVs
 Rscript novaseq/scripts/original_scripts/Ensemble_taxonomy_18S_ASVs.R

@@ -8,9 +8,9 @@ if(!dir.exists(output_dir)) dir.create(output_dir)
 
 # read 18S sample summary and extract negative control IDs
 
-18S_summary <- read.csv("metadata/generated_meta/18S_batch3.4.5.6-metadata.csv", 
+summary_18S <- read.csv("metadata/generated_meta/18S_batch3.4.5.6-metadata.csv", 
                         sep = ",", header = TRUE)
-18S_negative <- c(unique(18S_summary$PCR_negative_control_Code_1), unique(18S_summary$PCR_negative_control_Code_2))
+negative_18S <- c(unique(summary_18S$PCR_negative_control_Code_1), unique(summary_18S$PCR_negative_control_Code_2))
 
 # Read ASV count table (output from dada2)
 
@@ -24,7 +24,7 @@ asv_table <- read.table("novaseq/18S/18S_ASV_counts_nosingle.txt",
 
 blank_list <- list()
 
-for (id in 18S_negative) {
+for (id in negative_18S) {
   subset_id <- asv_table[grep(id, colnames(asv_table))]
 
   negative_id <- subset(asv_table, subset_id > 0.1 * rowSums(asv_table))

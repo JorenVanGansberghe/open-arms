@@ -11,19 +11,20 @@ output_dir <- file.path("novaseq", "18S")
 # load sequencing batch numbers
 batch_dir    <- file.path("novaseq", "18S", "fastq_files")
 #batch_list <- list.files(batch_dir, pattern = "Batch")
-batch_list <- grep("^(?!.*Batch_5).*Batch", 
-                   list.files(batch_dir), 
+batch_list <- grep("^Batch_(([1-4]|[6-9])$|10$)",
+                   list.files(batch_dir),
                    value = TRUE, perl = TRUE)
 
 get_sample_name <- function(fname) strsplit(basename(fname), "_")[[1]][2]
 run_18S <- unname(sapply(batch_list, get_sample_name))
-
 # Load the sequence tables of the different sequence runs
 
 rds_list <- list()
 for (run in run_18S) {
   run_file <- file.path(input_dir, paste("seqtab_Batch", run, "_mod4.rds", sep = ""))
+  print(run_file)
   rds_run <- readRDS(run_file)
+  print(rds_run)
   rds_list[[as.character(run)]] <- rds_run
 }
 
@@ -116,7 +117,7 @@ seqtab.nochim.nosingle<-readRDS(file = file.path(output_dir, "seqtab_nochim_nosi
 
 # Download here: https://zenodo.org/records/14169026
 
-silva.ref<-"novaseq/Taxonomy_reference_sets/silva_nr99_v138.2_toSpecies_trainset.fa.gz"
+silva.ref<-"metadata/Taxonomy_reference_sets/silva_nr99_v138.2_toSpecies_trainset.fa.gz"
 
 # Set minBoot to 70
 
@@ -128,7 +129,7 @@ saveRDS(taxa_silva, file = file.path(output_dir, "taxa_18S_silva.rds"))
 
 # Download here: https://zenodo.org/record/1447330
 
-silva.euk.ref <- "novaseq/Taxonomy_reference_sets/silva_132.18s.99_rep_set.dada2.fa.gz" 
+silva.euk.ref <- "metadata/Taxonomy_reference_sets/silva_132.18s.99_rep_set.dada2.fa.gz" 
 
 # Set minBoot to 70.
 # Define taxonomic ranks for this specific reference set
@@ -141,7 +142,7 @@ saveRDS(taxa_silva_euk, file = file.path(output_dir,"taxa_18S_silva_euk.rds"))
 
 # Download here: https://github.com/pr2database/pr2database/releases
 
-pr2.ref <- "novaseq/Taxonomy_reference_sets/pr2_version_5.1.1_SSU_dada2.fasta.gz" 
+pr2.ref <- "metadata/Taxonomy_reference_sets/pr2_version_5.1.1_SSU_dada2.fasta.gz" 
 
 # Set minBoot to 70.
 # Define taxonomic ranks for this specific reference set

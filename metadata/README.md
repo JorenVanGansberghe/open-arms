@@ -1,1 +1,1 @@
-This directiry contains the metadata from both the ASSEMBLE+ and EMBRC projects, as well as the summary metadata files from the project pipelines. It also contains the fasta files for macse nuMT removal. 
+This directory contains the metadata from both the 18S sample, as well as the coordinates of the ARMS units. It also contains the reference PR2, and SILVA reference sets needed in 18S_chimera_singleton_removal_taxonomic_classification.R.

@@ -8,7 +8,7 @@
 #SBATCH -J openarms-joren-18S-2022-2025
 
 # The partition
-#SBATCH -p main ##main is the part of the cluster where you run it, main is 24h max
+#SBATCH -p main ##main is the part of the cluster where you run it, main is 24h max, long is 1 week max
 
 # 24 hours wall clock time will be given to this job
 #SBATCH -t 24:00:00
