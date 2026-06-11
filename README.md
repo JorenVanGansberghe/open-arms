@@ -247,7 +247,7 @@ sinfo
 # run script on dardel
 sbatch path/to/novaseq_slurm.sh
 
-# show jobs from user that are queueing to be run on Dardel
+# show jobs from user that are queueing to be run on Dardel and how long they have been running
 squeue -u pdcUsername
 
 # show start time of jobs of user
