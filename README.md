@@ -241,6 +241,9 @@ apptainer exec --bind /cfs/klemming/projects/supr/naiss2025-23-46/username/Proje
 # information about the projects on the server
 projinfo
 
+# information about the different partitions on the server
+sinfo
+
 # run script on dardel
 sbatch path/to/novaseq_slurm.sh
 
