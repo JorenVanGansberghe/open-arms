@@ -142,7 +142,7 @@ R1.flags <- paste("-g", FWD, "-a", REV.RC)
 R2.flags <- paste("-G", REV, "-A", FWD.RC) 
 # Run Cutadapt for every sample
 for(i in seq_along(fnFs)) {
-    system2(cutadapt, args = c("-e 0.05 --discard-untrimmed",R1.flags, R2.flags, "-m",1, # -e sets the allowed error, -m 1 discards sequences of length zero after cutadapting
+    system2(cutadapt, args = c("-e 0.05 --discard-untrimmed --revcomp", R1.flags, R2.flags, "-m",1, # -e sets the allowed error, -m 1 discards sequences of length zero after cutadapting
                                "-n", 2, # -n 2 required to remove FWD and REV from reads
                                "-o", fnFs.cut[i], "-p", fnRs.cut[i], # output files
                                fnFs[i], fnRs[i])) # input files                              

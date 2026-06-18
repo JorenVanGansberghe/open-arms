@@ -26,6 +26,6 @@ dependencies:
   - r-biocmanager=1.30.26
   - pip:
         - boldigger3==2.1.4
-        - cutadapt==4.5
+        - cutadapt==4.6
         - lxml-html-clean==0.4.3
 
